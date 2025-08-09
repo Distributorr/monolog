@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Monolog — Nachrichten & Essays</title>
+  <meta name="description" content="Monolog: longform journalism, essays und Analysen. Heute: Eine ausführliche Bestandsaufnahme zur Technokratie." />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/a2d9eb0d9a.js" crossorigin="anonymous"></script>
+  <!-- jsPDF + html2canvas for client-side PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-ZhK8kYV1Hq8P0+qg5Ai3w3B8QH3X1m8W0tR4mJv5wq+z6yq9t2Vx6j5V2w+3zqB1V0s1D3rGq6g5b7lYpQk0Xg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNa5j2k5m6Zqg1qD+1K9e2V1l0mN7xqjS1vYz9w2Q0cK7g3H2L4y5z8a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#7c5cff;
+      --muted:#94a3b8;
+      --glass: rgba(255,255,255,0.03);
+      --maxw:1100px;
+      --radius:14px;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg) 0%, #071021 100%);color:#e6eef8;line-height:1.7}
+    a{color:var(--accent);text-decoration:none}
+    header{backdrop-filter: blur(6px);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));padding:28px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    .container{max-width:var(--maxw);margin:24px auto;padding:0 20px}
+    .brand{display:flex;align-items:center;gap:14px}
+    .logo{width:56px;height:56px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,var(--accent),#4fd1c5);box-shadow:0 6px 18px rgba(124,92,255,0.18);font-weight:800;font-size:20px}
+    .site-title{font-family:'Merriweather', serif;font-size:20px;margin:0}
+    .site-sub{color:var(--muted);font-size:13px;margin-top:2px}
+
+    nav{margin-left:auto}
+    .nav-links{display:flex;gap:18px;align-items:center}
+    .nav-links a{font-size:14px;color:var(--muted)}
+
+    main{display:grid;grid-template-columns:1fr 340px;gap:28px;margin-top:26px}
+
+    /* Article Card */
+    article{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:26px;border-radius:var(--radius);box-shadow:0 8px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+    .hero{display:flex;gap:20px;align-items:flex-start}
+    .hero img{width:220px;height:140px;object-fit:cover;border-radius:10px;flex-shrink:0}
+    .meta{flex:1}
+    .kicker{font-size:12px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+    h1{font-family:'Merriweather', serif;font-size:28px;margin:8px 0 6px}
+    .byline{color:var(--muted);font-size:13px}
+
+    .content p{font-size:16px;color:#dfe9f8;margin:14px 0}
+    .content h2{font-family:'Merriweather', serif;margin-top:20px;font-size:20px}
+    .content blockquote{border-left:3px solid rgba(124,92,255,0.6);padding-left:14px;color:var(--muted);font-style:italic}
+    .content ul{margin:8px 0 8px 20px}
+
+    .toc{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);margin-bottom:16px}
+    .toc h3{margin:0 0 8px 0;font-size:15px}
+    .toc a{display:block;color:var(--muted);padding:6px 0;font-size:14px}
+
+    /* Sidebar */
+    aside{position:sticky;top:28px;height:fit-content}
+    .card{background:var(--card);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);margin-bottom:18px}
+    .card h4{margin:0 0 8px 0}
+    .social-icons{display:flex;gap:10px}
+    .share-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+
+    footer{margin-top:36px;padding:18px 0;color:var(--muted);text-align:center}
+
+    /* Responsive */
+    @media (max-width:980px){main{grid-template-columns:1fr} .hero img{width:140px;height:100px} aside{position:static;margin-top:12px}}
+
+    /* Print-friendly */
+    @media print{body{background:white;color:black} header, footer, .nav-links, .share-btn{display:none} article{box-shadow:none;border:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container" style="display:flex;align-items:center">
+      <div class="brand">
+        <div class="logo">M</div>
+        <div>
+          <div class="site-title">Monolog</div>
+          <div class="site-sub">Longform Nachrichten, Essays & Analysen</div>
+        </div>
+      </div>
+
+      <nav>
+        <div class="nav-links">
+          <a href="#">Start</a>
+          <a href="#artikel">Artikel</a>
+          <a href="#abo">Abonnement</a>
+          <a href="#kontakt">Kontakt</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <article id="artikel">
+      <div class="hero">
+        <img src="https://images.unsplash.com/photo-1508385082359-fb4d1b30b5f6?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=7f4b6b3f8f6a8e9a6b6f2f3c5a1d2e3f" alt="Technologie Netzwerk" loading="lazy">
+        <div class="meta">
+          <div class="kicker">Analyse</div>
+          <h1>Die Technokratie: Herrschaft der Expertise im Zeitalter der Algorithmen</h1>
+          <div class="byline">Von Anna Richter — Veröffentlicht am 9. August 2025 · Lesezeit ~18 Minuten</div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;display:flex;gap:14px;align-items:center">
+        <button class="share-btn" id="downloadPdfBtn"><i class="fas fa-file-pdf"></i> PDF herunterladen</button>
+        <a class="share-btn" href="#print" onclick="window.print();return false"><i class="fas fa-print"></i> Drucken</a>
+        <div style="margin-left:auto;color:var(--muted);font-size:13px">Quelle: Monolog | Bild: Unsplash</div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03);margin:18px 0">
+
+      <div class="content" id="articleContent">
+        <p><strong>Zusammenfassung:</strong> Die Technokratie beschreibt eine Form gesellschaftlicher Steuerung, in der Fachwissen, Daten und technische Verfahrensweisen ausschlaggebend für politische Entscheidungen sind. Dieser lange Essay untersucht Herkunft, Mechanik, Vergleichsformen, Risiken und Potenziale der Technokratie — und fragt, ob sie in demokratischen Gesellschaften ein praktikables Zukunftsmodell sein kann.</p>
+
+        <h2 id="einleitung">Einleitung — Begriff und Herkunft</h2>
+        <p>Der Begriff <em>Technokratie</em> stammt aus dem frühen 20. Jahrhundert und gewann vor allem in Zeiten großer wirtschaftlicher und technologischer Umbrüche an Attraktivität. Wörtlich bedeutet er „Herrschaft der Technik“ — genauer: die Herrschaft derjenigen, die Technik, Wissenschaft und Verwaltung verstehen und einsetzen können. Während klassische Demokratien repräsentative Mechanismen und politische Parteien in den Mittelpunkt stellen, rückt die Technokratie das <em>Fachwissen</em> in die Mitte der Entscheidungskultur.</p>
+
+        <p>Historisch betrachtet war die Technokratie nie ein einheitliches Projekt. Ihre Wurzeln finden sich in den Planungsbewegungen der 1920er und 1930er Jahre, in Effizienzdenken, Taylorismus und später in der Idee, Experten könnten staatliche Aufgaben besser lösen als parteipolitische Akteure. Moderne Technologien — Big Data, Simulationen, KI — haben diesen Gedanken befeuert und zu neuen Formen gemacht: algorithmische Steuerung, datengetriebene Politikberatung und automatisierte Verwaltungssysteme.</p>
+
+        <h2 id="struktur">Wie funktioniert Technokratie praktisch?</h2>
+        <p>Technokratie ist kein striktes Regelwerk, sondern eine Sammlung von Prinzipien und Mechanismen:</p>
+        <ul>
+          <li><strong>Datenbasierte Entscheidungsfindung:</strong> Entscheidungen werden auf Grundlage großer, oft in Echtzeit verfügbarer Datensätze getroffen.</li>
+          <li><strong>Modellierung und Simulation:</strong> Szenarien werden simuliert, um Konsequenzen abzuschätzen und optimale Pfade zu identifizieren.</li>
+          <li><strong>Fachliche Institutionen:</strong> Agenturen, Forschungsinstitute und Thinktanks übernehmen Planungs- und Implementierungsaufgaben.</li>
+          <li><strong>Automatisierte Prozesse:</strong> Teile der Verwaltung werden automatisiert — etwa Steuerabwicklung, Sozialleistungen, Verkehrssteuerung.</li>
+          <li><strong>Messbare Ziele:</strong> Performance-KPIs ersetzen oft narrative Ziele oder vage Versprechen.</li>
+        </ul>
+
+        <blockquote>Technokratie ist weniger eine Ideologie als ein methodischer Anspruch: das Beste aus Wissen und Technik zu nutzen, um komplexe gesellschaftliche Probleme zu lösen.</blockquote>
+
+        <h2 id="vergleiche">Vergleiche: Technokratie, Demokratie, Autokratie</h2>
+        <p>Ein Vergleich hilft, Stärken und Schwächen einzuordnen:</p>
+        <h3>Technokratie vs. Demokratie</h3>
+        <p>Demokratie basiert auf dem Prinzip der politischen Repräsentation und der öffentlichen Legitimation durch Wahlen. Technokratie setzt Maßstäbe an die Kompetenz der Entscheidungsträger. Während die Demokratie die moralische Legitimation durch den Willen der Bürger prioritär stellt, fordert die Technokratie die sachliche Legitimation durch Expertise. In der Praxis können beide Formen koexistieren: Demokratien nutzen Expert*innenrat, Technokratien können demokratische Kontrollmechanismen integrieren. Konflikte entstehen, wenn Fachentscheidungen als elitär empfunden werden oder wenn technokratische Vorgaben demokratische Präferenzen konterkarieren.</p>
+
+        <h3>Technokratie vs. Autokratie</h3>
+        <p>Autokratien basieren auf Machtkonzentration, oft ohne institutionelle Rechenschaftspflicht. Technokratie mag zwar Macht an spezialisierte Eliten delegieren, doch sie unterscheidet sich dadurch, dass Entscheidungen auf nachvollziehbaren Methoden, Modellen und Daten beruhen — zumindest im Ideal. Das Risiko liegt darin, dass eine technokratische Struktur in einer autoritären Umgebung zu einem effizienten, unkontrollierten Machtapparat werden kann.</p>
+
+        <h2 id="vorteile">Vorteile einer Technokratie</h2>
+        <p>Die Versprechen sind mächtig:</p>
+        <ul>
+          <li><strong>Effizienz:</strong> Schnellere, fundiertere Entscheidungen dank datenbasierter Analyse.</li>
+          <li><strong>Langfristplanung:</strong> Weniger Kurzfrist-Denken, mehr strategische Investitionen (Infrastruktur, Klimapolitik).</li>
+          <li><strong>Fachliche Fehlerreduktion:</strong> Bessere Diagnose komplexer Probleme durch fachspezifisches Wissen.</li>
+          <li><strong>Skalierbarkeit:</strong> Technische Lösungen können in großem Maßstab repliziert werden (z. B. digitale Gesundheitsplattformen).</li>
+        </ul>
+
+        <h2 id="nachteile">Nachteile und Risiken</h2>
+        <p>Doch jede Stärke trägt Schattenseiten:</p>
+        <ul>
+          <li><strong>Demokratische Entfremdung:</strong> Bürger*innen können sich machtlos fühlen, wenn Entscheidungen als ‚technisch notwendig‘ präsentiert werden.</li>
+          <li><strong>Sichtbarkeit und Nachvollziehbarkeit:</strong> Algorithmen und Modelle sind oft Blackboxes; ihre Annahmen sind für die Öffentlichkeit nicht transparent.</li>
+          <li><strong>Bias & Fehlinterpretation:</strong> Daten sind nie neutral — sie spiegeln Auswahl, Messfehler und historischen Kontext wider. Falsche oder unrepräsentative Daten führen zu schlechten Entscheidungen.</li>
+          <li><strong>Konzentration von Macht:</strong> Expert*innennetzwerke können zu geschlossenen Kreisen werden, die Interessen verteidigen statt zu prüfen.</li>
+          <li><strong>Wertekonflikte:</strong> Manche Entscheidungen sind grundlegend normative Fragen — sie lassen sich nicht rein technisch lösen (z. B. Abwägungen zwischen Sicherheit und Privatsphäre).</li>
+        </ul>
+
+        <h2 id="praktische-beispiele">Praktische Beispiele und Fallstudien</h2>
+        <p>Ein Blick in die Praxis macht Chancen und Fallstricke sichtbar:</p>
+        <h3>Finanzkrisen und makroökonomische Steuerung</h3>
+        <p>Seit der Finanzkrise 2008 setzten Zentralbanken verstärkt auf modellbasierte Steuerung und Expertengremien. Die Fähigkeit, Marktmechanismen quantitativ zu analysieren, verhinderte in einigen Fällen Panik — gleichzeitig schuf die Abhängigkeit von Modellen neue Risiken, wenn Modelle die Realität falsch abbildeten.</p>
+
+        <h3>Pandemiebekämpfung</h3>
+        <p>Die COVID-19-Pandemie offenbarte das Spannungsfeld: Expert*innen empfahlen Maßnahmen nach epidemiologischen Modellen, doch politische Legitimation war oft nötig, um Restriktionen durchzusetzen. Wo technokratische Vorschläge transparent erklärt und gesellschaftlich eingebettet wurden, sank der Widerstand. Wo sie als „oben verordnet“ wahrgenommen wurden, stießen sie auf Ablehnung.</p>
+
+        <h3>Smart Cities und Verkehrssteuerung</h3>
+        <p>Städte, die Verkehrsströme datenbasiert steuern, reduzieren Staus und Emissionen. Doch Überwachung und Datenschutz werden zu zentralen Konfliktfeldern: Kameras, Sensoren und Bewegungsdaten bieten Effizienz, bergen aber Risiken für die Privatsphäre.</p>
+
+        <h2 id="gestaltungsprinzipien">Gestaltungsprinzipien für eine demokratische Technokratie</h2>
+        <p>Wie könnte eine technokratisch informierte, aber demokratisch verantwortete Politik aussehen? Einige Prinzipien:</p>
+        <ul>
+          <li><strong>Transparenzpflicht:</strong> Modelle, Datenquellen und Annahmen müssen offengelegt und verständlich dokumentiert werden.</li>
+          <li><strong>Partizipation:</strong> Bürgerdialoge und deliberative Verfahren (z. B. Bürgerräte) sollten Expert*innenwissen ergänzen.</li>
+          <li><strong>Audit und Rechenschaft:</strong> Unabhängige Prüfstellen müssen Algorithmen und Datenprozesse regelmäßig prüfen.</li>
+          <li><strong>Redundanz:</strong> Mehrere, unterschiedliche Modelle verhindern Übervertrauen in ein einziges System.</li>
+          <li><strong>Wertgebundene Programmierung:</strong> Technische Systeme sollten klare ethische Leitplanken besitzen, die demokratisch legitimiert sind.</li>
+        </ul>
+
+        <h2 id="philosophische-frage">Philosophische Fragen: Können Werte berechnet werden?</h2>
+        <p>Ein zentraler Kritikpunkt: Technokratie neigt dazu, normative Fragen zu ververeinfachen. Was bedeutet ‚Gerechtigkeit‘ in quantifizierbaren Metriken? Wer legt Prioritäten fest? Diese Fragen fordern eine Kultur, die über reine Technik hinausgeht — eine Kultur, die Ethik, Soziologie und Politik gleichermaßen einbezieht.</p>
+
+        <h2 id="zukunftsszenarien">Zukunftsszenarien</h2>
+        <p>Es sind mehrere Wege denkbar:</p>
+        <ol>
+          <li><strong>Hybridmodell:</strong> Demokratien integrieren technokratische Institutionen stärker, behalten aber Kontrolle durch Wahlen, Transparenz und Rechtsstaatlichkeit.</li>
+          <li><strong>Technokratische Dominanz:</strong> Expertise dominiert politische Agenda — kurzfristig effizient, langfristig riskant für Freiheitsrechte.</li>
+          <li><strong>Demokratische Renaissance:</strong> Gegenbewegungen forcieren direktdemokratische Instrumente, als Reaktion auf Entfremdung von Expertenherrschaft.</li>
+        </ol>
+
+        <h2 id="schlussbewertung">Schlussbewertung</h2>
+        <p>Technokratie ist kein Allheilmittel, aber auch kein bloßer Albtraum. Sie ist ein Set an Methoden, das uns helfen kann, komplexe Probleme zu adressieren — wenn wir es mit demokratischen Praktiken, ethischer Reflexion und institutioneller Kontrolle koppeln. Die Herausforderung besteht darin, Expertise und Legitimität zu verbinden: Fachwissen muss erklären, zuhören und rechenschaftspflichtig sein.</p>
+
+        <p>Die eigentliche Aufgabe liegt nicht darin, die Technokratie zu "bekämpfen" oder blind zu übernehmen, sondern in der Formulierung einer politischen Kultur, die Technik als Werkzeug begreift — nicht als Ersatz für politische Auseinandersetzung.</p>
+
+        <p style="margin-top:18px;color:var(--muted);font-size:14px">Autorin: Anna Richter ist Politikwissenschaftlerin mit Schwerpunkt Technikfolgenabschätzung. Sie schreibt regelmäßig für Monolog zu Themen an der Schnittstelle von Politik, Gesellschaft und Technologie.</p>
+      </div>
+
+    </article>
+
+    <aside>
+      <div class="card">
+        <h4>Inhalt</h4>
+        <div class="toc">
+          <h3>Zum Artikel</h3>
+          <a href="#einleitung">Einleitung</a>
+          <a href="#struktur">Wie funktioniert Technokratie</a>
+          <a href="#vergleiche">Vergleiche</a>
+          <a href="#vorteile">Vorteile</a>
+          <a href="#nachteile">Nachteile</a>
+          <a href="#praktische-beispiele">Fallstudien</a>
+          <a href="#gestaltungsprinzipien">Gestaltungsprinzipien</a>
+          <a href="#zukunftsszenarien">Zukunftsszenarien</a>
+          <a href="#schlussbewertung">Bewertung</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>Teile diesen Artikel</h4>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <button class="share-btn" onclick="share('twitter')"><i class="fab fa-twitter"></i> Twitter</button>
+          <button class="share-btn" onclick="share('fb')"><i class="fab fa-facebook"></i> Facebook</button>
+          <button class="share-btn" onclick="share('link')"><i class="fas fa-link"></i> Link kopieren</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>Beliebte Artikel</h4>
+        <ul style="margin:8px 0 0 14px;color:var(--muted)">
+          <li><a href="#">Die Maschine entscheidet nicht: Ethik in Algorithmen</a></li>
+          <li><a href="#">Digitale Stadtentwicklung: Chancen & Gefahren</a></li>
+          <li><a href="#">Wenn Daten lügen: Bias in der Praxis</a></li>
+        </ul>
+      </div>
+
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      © 2025 Monolog — Longform Nachrichten · <a href="#kontakt">Kontakt</a> · <a href="#impressum">Impressum</a>
+    </div>
+  </footer>
+
+  <script>
+    // Simple share handler
+    function share(target){
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent('Interessanter Artikel auf Monolog: Die Technokratie');
+      if(target==='twitter') window.open('https://twitter.com/intent/tweet?url='+url+'&text='+text,'_blank');
+      if(target==='fb') window.open('https://www.facebook.com/sharer/sharer.php?u='+url,'_blank');
+      if(target==='link'){
+        navigator.clipboard.writeText(window.location.href).then(()=>alert('Link kopiert'))
+      }
+    }
+
+    // PDF generation: capture #articleContent and create a downloadable PDF
+    document.getElementById('downloadPdfBtn').addEventListener('click', async function(){
+      const btn = this; btn.disabled=true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Erstelle PDF...';
+      const el = document.getElementById('articleContent');
+      // Use html2canvas to render element to canvas
+      const originalScale = document.body.style.transform || '';
+      // Temporarily set white bg for better PDF rendering
+      const prevBg = el.style.background;
+      el.style.background = '#ffffff';
+      try{
+        const canvas = await html2canvas(el, {scale: 2, useCORS: true, logging: false});
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const pdf = new window.jspdf.jsPDF({unit:'px', format:'a4'});
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        // Calculate image dimensions to fit horizontally
+        const imgProps = {width: canvas.width, height: canvas.height};
+        const ratio = imgProps.width / pageWidth;
+        const imgHeight = imgProps.height / ratio;
+        let position = 0;
+        pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, imgHeight);
+        // If content exceeds one page, add pages
+        let remainingHeight = imgHeight - pageHeight;
+        while(remainingHeight > -10){
+          position -= pageHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, imgHeight);
+          remainingHeight -= pageHeight;
+        }
+        pdf.setProperties({title:'Die Technokratie - Monolog'});
+        pdf.save('Monolog_Die-Technokratie.pdf');
+      }catch(err){
+        console.error(err);alert('Fehler beim Erstellen des PDFs.');
+      }finally{
+        el.style.background = prevBg;
+        btn.disabled=false; btn.innerHTML = '<i class="fas fa-file-pdf"></i> PDF herunterladen';
+      }
+    });
+  </script>
+</body>
+</html>
